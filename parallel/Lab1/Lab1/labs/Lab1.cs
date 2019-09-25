@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Lab1.utils;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -6,16 +7,21 @@ namespace Lab.labs
 {
     // Program without async, thread and parallel takes 5.9 MB from RAM
 
+    // Program with order takes 6.0 MB from RAM - 12920739 ticks
     // Program with parallel takes 6.5 MB from RAM -  (best - 20001 (0) msec)
     // Program with async/await takes 6.4 MB from RAM - 40002 msec (best - 20001 msec)
     // Program with thread takes 7.1 MB from RAM - 110007 msec (best - 20001 msec)
 
     public class Lab1
     {
-        private const int NUMBERS = 100;
+        private const int NUMBERS = 1000000;
+
+        private const int ROW = 100;
+        private const int COLUMN = 100;
 
         private long timeParallel = 0;
         private long timeThread = 0;
+        private long timeTask = 0;
 
         private delegate void onLast(Action act, long time);
         private event onLast OnLastEvent;
@@ -24,7 +30,8 @@ namespace Lab.labs
         {
             OnLastEvent += Lab1_OnLastEvent;
 
-            //executeTask();
+            //executeSimple();
+//            executeTask();
             //executeParallel();
             //executeThread();
         }
@@ -34,7 +41,7 @@ namespace Lab.labs
             act();
         }
 
-        private async Task<long> executeByTaskAsync(int n)
+        /*private async Task<long> executeByTaskAsync(int n)
         {
             return await Task.Run(() =>
                  {
@@ -45,11 +52,12 @@ namespace Lab.labs
                      long delta = DateTime.Now.Ticks - date;
                      return delta;
                  });
-        }
+        }*/
+
 
         private async void executeTask()
         {
-            var time = 0L;
+            /*var time = 0L;
             for (int i = 2; i < NUMBERS; i++)
             {
                 time += await executeByTaskAsync(i);
@@ -58,7 +66,22 @@ namespace Lab.labs
                     {
                         Console.WriteLine("Async/Await time : {0}", time);
                     },time);
+            }*/
+
+            var matrix = Matrix.CreateMatrixOnes(ROW, COLUMN);
+
+            var result = new int[ROW][];
+
+            for (int i = 0; i < ROW; i++)
+            {
+                for (int j = 0; j < COLUMN; j++)
+                {
+
+                }
             }
+
+
+
         }
 
         private void executeThread()
@@ -84,7 +107,7 @@ namespace Lab.labs
         private void executeParallel()
         {
             int qutoer = NUMBERS / 4;
-            for (int i = 2; i < NUMBERS; i++)
+            for (int i = 2; i < NUMBERS/4; i++)
             {
                 Action<int> act = (k) =>
                 {
@@ -109,6 +132,24 @@ namespace Lab.labs
                     () => { act(4); }
                 );
             }
+        }
+
+        private void executeSimple()
+        {
+            var date = DateTime.Now.Ticks;
+
+            for (int i = 2; i < NUMBERS; i++)
+            {
+                isTub(i);
+            }
+
+            var delta = DateTime.Now.Ticks - date;
+
+            OnLastEvent(() =>
+            {
+                Console.WriteLine("Simple : {0}", delta);
+            }, delta);
+
         }
 
         private bool isTub(int n)
